@@ -31,4 +31,4 @@ The validation is a bit buggy still, but otherwise, it work ok.
 Much work to go.
 
 ### Why no database?
-Embarasingly, I'm yet to learn how to use databases. My task for myself in this project so far is to learn to code a GUI. For now, reading and writing to json files will do.
+Embarrassingly, I'm yet to learn how to use databases. My task for myself in this project so far is to learn to code a GUI. For now, reading and writing to json files will do.
