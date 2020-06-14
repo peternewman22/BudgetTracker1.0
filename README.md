@@ -22,7 +22,7 @@ At the outset, this project is an opportunity for me to:
 1. Iterate through the list, looking for keyword matches in the descriptions
     * 0 matches: make a GUI and categorise as a once-off interaction or add a new keyword. Note: Keyword needs to be useful (contained in the description) and valid (unique) before a Submit is allowed.
     * 1 match: if **safeMode** --> automatically categorise; if not **safeMode** --> give quick match options (buttons) or prompt once off and new keyword entry
-    * >1 matches: Give quick match options etc
+    * 2+ matches: Give quick match options etc
     * If new keyword or subcategory, save to the json file *(need database)*
 1. Use the gui or keyword map to identify the subcategory
 1. Append to an output csv using the subcategory map you set up at the beginning
