@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+# Exclude CSV and EXCEL files - The internet doesn't need to see my purchase history
+*.csv
+*.xlsx
+*.json
+
 # Distribution / packaging
 .Python
 build/
