@@ -94,11 +94,15 @@ class Helper:
 
         # extracting from the window
         window = sg.Window("Choose Settings", settingsLayout)
-        values = window.read()[1]
+        event, values = window.read()
         window.close()
 
         # Overwriting if necessary
-        settings['safeMode'] = values["-SAFE MODE-"]
-        settings['theme'] = values["-THEME-"][0]
-        
+        if event != None:
+            try:
+                settings['safeMode'] = values["-SAFE MODE-"]
+                settings['theme'] = values["-THEME-"][0]
+            except Exception as e:
+                print(e)
+
         return settings

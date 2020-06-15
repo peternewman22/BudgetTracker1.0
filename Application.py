@@ -67,7 +67,7 @@ class Application:
         return list(set(filter(lambda eachKW: eachKW in desc, self.kwList)))
 
     def generateGUI(self, desc, matches):
-        return Gui(desc, self.kwMap, matches, self,subcatMap, self.subcategories, self.categories, self.bucketList, self.kwList)
+        return Gui(desc, self.kwMap, matches, self.subcatMap, self.subcategories, self.categories, self.bucketList, self.kwList)
     
     def saveNewKW(self,newKW, subcategory):
         """Adds an entry to the kwMap then refreshes downstream lists"""
@@ -96,12 +96,9 @@ class Application:
                 gui = self.generateGUI(eachDesc, matches)
                 # use the gui to find the correct subcategory
                 data = gui.getSubcategoryLoop()
-                
-                if data['New Keyword']: # if a new keyword is declared, then save it and extract the subcategory which will be chosen
+                subcategory = data['Subcategory'] # extract the subcategory
+                if data['New Keyword'] != None: # if a new keyword is declared, then save it and extract the subcategory which will be chosen
                     self.saveNewKW(data['Keyword'], subcategory)
-                    subcategory = data['Subcategory'] # extract the subcategory
-                elif not data['New Keyword']: # if no new keyword is declared, subcategory is the mapping of the keyword
-                    subcategory = self.subcatMap[data['Keyword']] # this
                 if data['New Subcategory']: # if a new 
                     self.saveNewSubcategory(subcategory, data['Category'], data['Bucket'], data['Class'])
                 

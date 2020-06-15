@@ -164,14 +164,13 @@ class Gui:
             event, values = self.window.Read(timeout = 1000)
             # Have we closed the window?
             if event in (None, "Cancel", "Uncategorised"):
-                subcategory = "Uncategorised"
                 print("Categorised as 'Uncategorised'")
                 break
 
             # If submit...
             if event == "-SUBMIT-": #Only available in the case of a new keyword
                 if values['-ONCEOFF FLAG-']:
-                    subcategory = values['-ONCEOFF SUBCATEGORY-'][0].title() #format as title
+                    data['Subcategory'] = values['-ONCEOFF SUBCATEGORY-'][0].title() #format as title
                 elif values['-NEW KW-']: # To be explicit, but submit can't be access without keyword
                     data['New Keyword'] = values['-NEW KW-'].upper() # extract the keyword
                     if values['-NEW SUBCAT-']: # changed to rely on the CB's 
@@ -188,8 +187,8 @@ class Gui:
             
             # detecting quick match selections
             if event in self.matches:
-                data['Subcateogry'] = self.subcatMap[event] # look up the keyword mapping and overwrite Subcategory
-                print(f"Categorised as {subcategory} --> {self.kwMap[subcategory]}")
+                data['Subcategory'] = self.kwMap[event] # look up the keyword mapping and overwrite Subcategory
+                print(f"Categorised using {event} --> {data['Subcategory']}")
                 break
 
            # updating the search lists
