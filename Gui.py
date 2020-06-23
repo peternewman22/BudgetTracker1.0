@@ -15,11 +15,14 @@ class Gui:
         self.bucketList = bucketList
         self.kwMap = kwMap
         self.kwList = keywordList
-        self.yetToShowNewKWFrame = True # Use these to deterimine whether an update is due or if it's already been triggered
-        self.yetToShowNewSubcatFrame = True
-        self.yetToShowOnceOff = True
+        self.showNewKWFrame = False # Use these to deterimine whether an update is due or if it's already been triggered
+        self.showNewSubcatFrame = False
+        self.showOnceOffFrame = False
         self.window = None
-        self.flagMap = {'-NEW KW FRAME-' : self.yetToShowNewKWFrame, '-NEW SUBCAT FRAME-' : self.yetToShowNewSubcatFrame, '-ONCEOFF FRAME-' : self.yetToShowOnceOff}
+        self.validSubmit = False
+        self.data = self.createDataTemplate()
+        self.flagMap = {'-NEW KW FRAME-' : self.showNewKWFrame, '-NEW SUBCAT FRAME-' : self.showNewSubcatFrame, '-ONCEOFF FRAME-' : self.showOnceOffFrame}
+        self.flag2FrameMap = {'-NEW KW FLAG-':'-NEW KW FRAME-', '-NEW SUBCAT FLAG-':'-NEW SUBCAT FRAME-', '-ONCEOFF FLAG-':'-ONCEOFF FRAME-'}
         self.submitTooltip = "Only unique keywords and subcategories can be submitted..."
 
 
@@ -63,9 +66,9 @@ class Gui:
         newSubcatLayout = [
             [sg.T("New Subcat: "), sg.InputText(key='-NEW SUBCAT-')],
             [sg.T("Choose a category: "), sg.InputText(key='-CAT SEARCH TERM-', enable_events = True)],
-            [sg.Listbox(self.categoryList, key = '-CAT LISTBOX-', size=(20,10), select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events=True)],
+            [sg.Listbox(self.categoryList, key = '-CAT LISTBOX-', size=(20,5), select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events=True)],
             [sg.T("Choose a bucket")],
-            [sg.Listbox(self.bucketList, key='-BUCKET-', size = (20,len(self.bucketList)), select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events =True)],
+            [sg.Listbox(self.bucketList, key='-BUCKET-', size = (20,3), select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events =True)],
             [sg.T("Choose a class")],
             [sg.Listbox(["Expenditure","Income"], key='-CLASS-',size = (20,2),select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events=True)]
         ]
@@ -77,7 +80,7 @@ class Gui:
         newKWLayout = [
             [sg.T("New Keyword: "), sg.InputText(key='-NEW KW-')],
             [sg.T("Choose a subcategory: "), sg.InputText(key='-SUBCAT SEARCH TERM-', enable_events= True)],
-            [sg.Listbox(self.subcategoryList, key = '-SUBCAT LISTBOX-', size=(20,10), select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events = True)]
+            [sg.Listbox(self.subcategoryList, key = '-SUBCAT LISTBOX-', size=(20,5), select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events = True)]
         ]
         return [sg.Frame("New Keyword", layout = newKWLayout, visible=False , key='-NEW KW FRAME-')]
 
@@ -88,7 +91,7 @@ class Gui:
         debug = sg.CB("Debug Mode", default = True, key = '-DEBUG-', enable_events=True)
         onceoff = sg.CB("Once-Off", default = False, key = '-ONCEOFF FLAG-',enable_events=True)
         newKW = sg.CB("New Keyword", default = False, key = '-NEW KW FLAG-',enable_events=True)
-        newSubcat = sg.CB("New Subcat", default = False, key = '-NEW SUBCAT FLAG-', disabled = True)
+        newSubcat = sg.CB("New Subcat", default = False, key = '-NEW SUBCAT FLAG-',enable_events=True)
         return [debug, onceoff, newKW, newSubcat]
 
     # final layout
@@ -104,15 +107,11 @@ class Gui:
             [sg.Button("Uncategorised"),sg.Submit(disabled=True, key='-SUBMIT-', tooltip = self.submitTooltip), sg.Cancel()]
         ]
     
-    def checkFrameVisibility(self, flagValue, frameKey):
+    def toggleFrameVisibility(self, frameKey):
         """Toggles visibility for frames within the window"""
-        if flagValue and self.flagMap[frameKey]:
-            self.window[frameKey].update(visible=True)
-            self.flagMap[frameKey] = False
-
-        elif not flagValue and not self.flagMap[frameKey]:
-            self.window[frameKey].update(visible=False)
-            self.flagMap[frameKey] = True
+        print(f'Changing {frameKey}. Was {self.flagMap[frameKey]} now {not self.flagMap[frameKey]}')
+        self.flagMap[frameKey] = not self.flagMap[frameKey] # toggle flag
+        self.window[frameKey].update(visible=self.flagMap[frameKey]) # set visibility to new value of flag
 
     def filterList(self, searchTerm, searchList):
         """Prepares the search term and filters the list"""
@@ -147,10 +146,11 @@ class Gui:
     def generateWindow(self):
         """Creates a new window"""
         return sg.Window("Categorise Me!", self.generateCompleteLayout())
+    
 
-    def getSubcategoryLoop(self):
-        """Uses the window to find the subcategory and new keyword/subcategory data"""
-        data = {
+    def createDataTemplate(self):
+        """Creates the template for data to be gathered"""
+        return {
             "Subcategory" : "Uncategorised", # default
             "New Keyword": None,
             "New Subcategory" : False,
@@ -158,77 +158,84 @@ class Gui:
             "Bucket" : None,
             "Class" : "Expenses" # default
             }
-        
+
+    def getSubcategoryLoop(self):
+        """Uses the window to find the subcategory and new keyword/subcategory data"""
+                
         self.window = self.generateWindow()
         while True:
             event, values = self.window.Read(timeout = 1000)
-            # Have we closed the window?
+
+            # Cancel?
             if event in (None, "Cancel", "Uncategorised"):
                 print("Categorised as 'Uncategorised'")
                 break
-
-            # If submit...
-            if event == "-SUBMIT-": #Only available in the case of a new keyword
-                if values['-ONCEOFF FLAG-']:
-                    data['Subcategory'] = values['-ONCEOFF SUBCATEGORY-'][0].title() #format as title
-                elif values['-NEW KW-']: # To be explicit, but submit can't be access without keyword
-                    data['New Keyword'] = values['-NEW KW-'].upper() # extract the keyword
-                    if values['-NEW SUBCAT-']: # changed to rely on the CB's 
-                        data['Subcategory'] = values['-NEW SUBCAT-'].title()
-                        data['Category'] = values['-CAT LISTBOX-'][0]
-                        data['Bucket'] = values['-BUCKET-'][0]
-                        data['Class'] = values['-CLASS-'][0]
-                    else:
-                        data['Subcategory'] = values['-SUBCAT LISTBOX-'][0].title() # subcategory        
-                
-                print("Finished with the following data:")
-                [print(f"{k}: {v}") for k, v in data.items()]
-                break
-            
-            # detecting quick match selections
-            if event in self.matches:
-                data['Subcategory'] = self.kwMap[event] # look up the keyword mapping and overwrite Subcategory
-                print(f"Categorised using {event} --> {data['Subcategory']}")
-                break
-
-           # updating the search lists
-            if event == '-SUBCAT SEARCH TERM-': # if there's a change in the search term
-                self.updateList(values['-SUBCAT SEARCH TERM-'], self.subcategoryList, '-SUBCAT LISTBOX-') # update subcategories on display
-            if event == '-CAT SEARCH TERM-': # if there's a change in the search term
-                self.updateList(values['-CAT SEARCH TERM-'],self.categoryList,'-CAT LISTBOX-') # update categories on display
-            if event == '-ONCEOFF SEARCH TERM-':
-                self.updateList(values['-ONCEOFF SEARCH TERM-'], self.subcategoryList, '-ONCEOFF SUBCATEGORY-')
             
             # showing debug information
             if event != '__TIMEOUT__' and values['-DEBUG-']:
-                print(f"event: {event}, values: {values}")
+                print(f"event: {event} \nvalues: {values}\n\n")
+
+            # detecting quick match selections
+            elif event in self.matches:
+                self.data['Subcategory'] = self.kwMap[event] # look up the keyword mapping and overwrite Subcategory
+                print(f"Categorised using {event} --> {self.data['Subcategory']}")
+                break
+
+            # If submit...
+            elif event == "-SUBMIT-": #Only available in the case of a new keyword
+                """Called on Submit"""
+                if values['-ONCEOFF FLAG-']:
+                    self.data['Subcategory'] = values['-ONCEOFF SUBCATEGORY-'][0].title() #extract and format as title
+                elif values['-NEW KW-']: # To be explicit, but submit can't be access without keyword
+                    self.data['New Keyword'] = values['-NEW KW-'].upper() # extract the keyword
+                    if values['-NEW SUBCAT-']: # changed to rely on the CB's 
+                        self.data['Subcategory'] = values['-NEW SUBCAT-'].title()
+                        self.data['Category'] = values['-CAT LISTBOX-'][0]
+                        self.data['Bucket'] = values['-BUCKET-'][0]
+                        self.data['Class'] = values['-CLASS-'][0]
+                    else:
+                        self.data['Subcategory'] = values['-SUBCAT LISTBOX-'][0].title() # extract subcategory        
+        
+                print("Finished with the following data:")
+                [print(f"{k}: {v}") for k, v in self.data.items()]
+                break       
+
+           # updating the search lists
+            elif event == '-SUBCAT SEARCH TERM-': # if there's a change in the search term
+                self.updateList(values['-SUBCAT SEARCH TERM-'], self.subcategoryList, '-SUBCAT LISTBOX-') # update subcategories on display
+            
+            elif event == '-CAT SEARCH TERM-': # if there's a change in the search term
+                self.updateList(values['-CAT SEARCH TERM-'],self.categoryList,'-CAT LISTBOX-') # update categories on display
+            
+            elif event == '-ONCEOFF SEARCH TERM-':
+                self.updateList(values['-ONCEOFF SEARCH TERM-'], self.subcategoryList, '-ONCEOFF SUBCATEGORY-')
+                  
 
             # if there's a change to any of the flag checkboxes, update visibility
-            if event in ("-NEW KW FLAG-", "-NEW SUBCAT FLAG-", "-ONCEOFF FLAG-"):
-                self.checkFrameVisibility(values['-NEW KW FLAG-'], '-NEW KW FRAME-') # show or hide KW Frame
-                self.checkFrameVisibility(values['-NEW SUBCAT FLAG-'], '-NEW SUBCAT FRAME-') # show or hide the Subcat Frame
-                self.checkFrameVisibility(values['-ONCEOFF FLAG-'], '-ONCEOFF FRAME-' ) # show or hide the Once-Off Frame
+            elif event in ("-NEW KW FLAG-", "-NEW SUBCAT FLAG-", "-ONCEOFF FLAG-"):
+                toChange = self.flag2FrameMap[event]
+                self.toggleFrameVisibility(toChange) # show or hide frames
             
             # disable/enable submit based on once-off checkbox
             if values['-ONCEOFF FLAG-']:
-                self.window['-NEW KW FLAG-'].update(disabled = True) # if once off, disable NEW KEYWORD
+                # self.window['-NEW KW FLAG-'].update(disabled = True) # if once off, disable NEW KEYWORD
                 if self.isSelected(values['-ONCEOFF SUBCATEGORY-']):
                     self.window['-SUBMIT-'].update(disabled = False)
-            elif not values['-ONCEOFF FLAG-']:
-                self.window['-NEW KW FLAG-'].update(disabled = False)
+            # elif not values['-ONCEOFF FLAG-']:
+            #     self.window['-NEW KW FLAG-'].update(disabled = False)
 
             # disable/enable submit based on new kw flag
             if values['-NEW KW FLAG-']:
-                self.window['-NEW SUBCAT FLAG-'].update(disabled=False) # if new kw flag, then allow new subcat flag
+                # self.window['-NEW SUBCAT FLAG-'].update(disabled=False) # if new kw flag, then allow new subcat flag
                 validKWInfo = all([self.validate("kw", values['-NEW KW-'], self.kwList), self.usefulKeyword(values['-NEW KW-'])]) # If the kw is useful and valid           
                 if not values['-NEW SUBCAT FLAG-']: # if we're NOT using a new subcategory
-                    data["New Subcategory"] = False # declare
+                    self.data["New Subcategory"] = False # set new subcat explicitly to false
                     if validKWInfo and self.isSelected(values['-SUBCAT LISTBOX-']): # allow submit if valid, useful keyword and a subcategory selection made
                         self.window['-SUBMIT-'].update(disabled = False)
                     else:
                         self.window['-SUBMIT-'].update(disabled = True)
                 if values['-NEW SUBCAT FLAG-']:
-                    data["New Subcategory"] = True
+                    self.data["New Subcategory"] = True
                     validSubcatInfo = self.validate("subcat", '-NEW SUBCAT-', self.subcategoryList)
                     if validKWInfo and validSubcatInfo and self.isSelected(values['-CAT LISTBOX-']) and self.isSelected(values['-BUCKET-']) and self.isSelected(values['-CLASS-']):
                         self.window['-SUBMIT-'].update(disabled = False)
@@ -240,5 +247,4 @@ class Gui:
 
         self.window.close()
         self.window = None
-        
-        return data
+        return self.data
