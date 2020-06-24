@@ -27,8 +27,22 @@ At the outset, this project is an opportunity for me to:
 1. Use the gui or keyword map to identify the subcategory
 1. Append to an output csv using the subcategory map you set up at the beginning
 
-The validation is a bit buggy still, but otherwise, it work ok.
+The validation is a bit buggy still, but otherwise, it works ok.
 Much work to go.
+
+## To do / Progress / Targets
+* ~~General restucture to improve readability and to modularize more~~
+* Strip away buggy validation
+* Restructure adding search boxes to frames. Very clunky right now.
+
+## Stretch Goals / Next Moves for BudgetTracker1.0
+* Integrate with database
+* Set up to generate the base map programmatically
+* Create a Gui to examine and change keyword:subcategories and subcategories:category,bucket,class
+* Call up PayPal services - bank transcripts aren't very descriptive here
+* Auto-complete on search terms
+* Move to a webservice? Possibly integrate with Google Sheets
+* Revisit as a Google Sheets extension
 
 ### Why no database?
 Embarrassingly, I'm yet to learn how to use databases. My task for myself in this project so far is to learn to code a GUI. For now, reading and writing to json files will do.

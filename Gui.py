@@ -3,6 +3,7 @@ Note: Version 2 is much more action-based and extensively uses enable_events to 
 """
 
 import PySimpleGUI as sg
+from SearchBox import SearchBox
 
 class Gui:
     """Handles creating each window, gathering the subcategory"""
@@ -15,6 +16,11 @@ class Gui:
         self.bucketList = bucketList
         self.kwMap = kwMap
         self.kwList = keywordList
+        self.searchOnceOff = SearchBox("OnceOff Subcategory","-ONCEOFF SUBCAT")
+        self.searchSubcategory = SearchBox("Subcategory","-")
+        self.searchCategory = SearchBox("Category","-CAT LISTBOX-",self.categoryList,5,True,"-CAT SEARCH TERM-")
+        self.searchBucket = SearchBox("Bucket","-BUCKET-",self.bucketList,3,False)
+        self.searchClass = SearchBox("Class","-CLASS-",["Expenditure", "Income"],2,False)
         self.showNewKWFrame = False # Use these to deterimine whether an update is due or if it's already been triggered
         self.showNewSubcatFrame = False
         self.showOnceOffFrame = False
@@ -43,46 +49,29 @@ class Gui:
         newKW = newKW.upper() # all keywords are upper
         return newKW not in self.kwList
 
-    def filteredList(self, searchTerm, searchList):
-        """Filters the subcategories by the search term"""
-        search = searchTerm.upper().strip()
-        if search == '':
-            return self.subcategoryList
-        else:
-            return list(filter(lambda eachSubcat: searchTerm == eachSubcat[:len(search)], searchList))
 
     # Once-off categorisation frame    
     def generateOnceOffFrame(self):
         """Generates the Once-Off Categorisation Frame"""
-        layout = [
-            [sg.T("Search:"),sg.InputText(key="-ONCEOFF SEARCH TERM-", enable_events= True)],
-            [sg.Listbox(self.subcategoryList, key='-ONCEOFF SUBCATEGORY-', size = (20, 10), select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events=True)]
-        ]
+        layout = []
+        self.searchOnceOff.addToFrame(layout)
         return [sg.Frame("Once-Off Categorisation", layout = layout, visible=False, key='-ONCEOFF FRAME-')]
 
     # New Subcategory Frame
     def generateNewSubcatFrame(self):
         """Generates the New Subcategory Frame"""
-        newSubcatLayout = [
-            [sg.T("New Subcat: "), sg.InputText(key='-NEW SUBCAT-')],
-            [sg.T("Choose a category: "), sg.InputText(key='-CAT SEARCH TERM-', enable_events = True)],
-            [sg.Listbox(self.categoryList, key = '-CAT LISTBOX-', size=(20,5), select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events=True)],
-            [sg.T("Choose a bucket")],
-            [sg.Listbox(self.bucketList, key='-BUCKET-', size = (20,3), select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events =True)],
-            [sg.T("Choose a class")],
-            [sg.Listbox(["Expenditure","Income"], key='-CLASS-',size = (20,2),select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events=True)]
-        ]
-        return [sg.Frame("New Subcategory", layout = newSubcatLayout, visible=False , key='-NEW SUBCAT FRAME-')]
+        layout = [[sg.T("New Subcat: "), sg.InputText(key='-NEW SUBCAT-')]]
+        layout = self.searchCategory.addToFrame(layout)
+        layout = self.searchBucket.addToFrame(layout) 
+        layout = self.searchClass.addToFrame(layout)
+        return [sg.Frame("New Subcategory", layout = layout, visible=True , key='-NEW SUBCAT FRAME-')]
 
     # New Keyword frame
     def generateNewKWFrame(self):
         """Generates the New Keyword Frame"""
-        newKWLayout = [
-            [sg.T("New Keyword: "), sg.InputText(key='-NEW KW-')],
-            [sg.T("Choose a subcategory: "), sg.InputText(key='-SUBCAT SEARCH TERM-', enable_events= True)],
-            [sg.Listbox(self.subcategoryList, key = '-SUBCAT LISTBOX-', size=(20,5), select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events = True)]
-        ]
-        return [sg.Frame("New Keyword", layout = newKWLayout, visible=False , key='-NEW KW FRAME-')]
+        layout = [[sg.T("New Keyword: "), sg.InputText(key='-NEW KW-')]]
+        layout = self.searchSubcategory.addToFrame(layout)
+        return [sg.Frame("New Keyword", layout = layout, visible=False , key='-NEW KW FRAME-')]
 
     # Checkboxes / Flags
     def generateFlags(self):
@@ -113,13 +102,7 @@ class Gui:
         self.flagMap[frameKey] = not self.flagMap[frameKey] # toggle flag
         self.window[frameKey].update(visible=self.flagMap[frameKey]) # set visibility to new value of flag
 
-    def filterList(self, searchTerm, searchList):
-        """Prepares the search term and filters the list"""
-        search = searchTerm.strip().title() # All subcategories are capitalized only
-        if search == '':
-            return searchList
-        else:
-            return list(filter(lambda eachItem: search == eachItem[:len(search)],searchList))
+    
     
     def updateList(self, searchTerm, searchList, listboxKey):
         """Updates listbox based on a filtered list"""
