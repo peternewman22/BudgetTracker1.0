@@ -30,8 +30,21 @@ At the outset, this project is an opportunity for me to:
 The validation is a bit buggy still, but otherwise, it works ok.
 Much work to go.
 
+## Why no database?
+Embarrassingly, I'm yet to learn how to use databases. My task for myself in this project so far is to learn to code a GUI. For now, reading and writing to json files will do
+
 ## To do / Progress / Targets
 * ~~General restucture to improve readability and to modularize more~~
+* ~~Fix Gui - hiding the once-off box logic fix~~
+* ~~Fix Gui - once-off disabled CB needs to be dynamic~~
+* ~~Fix Gui - base collection of data on the flags at submit~~
+* ~~Refactor: change to be event based~~
+* ~~Refactor: collect creating searchbox into a method or class~~
+* Refactor: sort out muddle of functionality - searching and updating the searchbox is currently done in GUI. Ideally, it would be under SearchBox.
+* New feature: Right Click to edit or delete keyword
+* New feature: Adding a resume button
+* New feature: Add/remove categories
+* Fix Application/GUI to use the Quick Match options - testing require
 * Strip away buggy validation
 * Restructure adding search boxes to frames. Very clunky right now.
 
@@ -42,7 +55,6 @@ Much work to go.
 * Call up PayPal services - bank transcripts aren't very descriptive here
 * Auto-complete on search terms
 * Move to a webservice? Possibly integrate with Google Sheets
-* Revisit as a Google Sheets extension
+* Rewrite as a Google Sheets extension
 
-### Why no database?
-Embarrassingly, I'm yet to learn how to use databases. My task for myself in this project so far is to learn to code a GUI. For now, reading and writing to json files will do.
+.

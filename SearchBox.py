@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 
 class SearchBox:
-    """Handles construction of a searchbox and functionality"""
+    """Handles construction of a searchbox"""
     def __init__(self, title, choiceKey, searchList, displaySize, searchable=True, searchKey=None ):
         self.title = title # fills the blank: Choose a ____
         self.choiceKey = choiceKey # to id user choice
@@ -25,14 +25,3 @@ class SearchBox:
         for eachRow in self.getRows():
             frameLayout.append(eachRow)
         return frameLayout
-
-    def filterList(self, searchTerm, searchList):
-        """Prepares the search term and filters the list"""
-        search = searchTerm.strip().title() # All subcategories are capitalized only
-        if search == '':
-            return searchList
-        else:
-            return list(filter(lambda eachItem: search == eachItem[:len(search)],searchList))
-
-    def search(self):
-        pass

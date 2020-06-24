@@ -44,11 +44,6 @@ class Gui:
                 frameLayout.append([sg.Button(eachMatch),sg.T(f"maps to {self.kwMap[eachMatch]}")])
             return [sg.Frame("Quick Match",layout=frameLayout)]
 
-    def validateNewKeyword(self, newKW):
-        """Checks to see if a new keyword has already been used"""
-        newKW = newKW.upper() # all keywords are upper
-        return newKW not in self.kwList
-
 
     # Once-off categorisation frame    
     def generateOnceOffFrame(self):
@@ -93,17 +88,19 @@ class Gui:
             self.generateOnceOffFrame(),
             self.generateNewKWFrame(),
             self.generateNewSubcatFrame(),
-            [sg.Button("Uncategorised"),sg.Submit(disabled=True, key='-SUBMIT-', tooltip = self.submitTooltip), sg.Cancel()]
+            [sg.Button("Uncategorised"),sg.Submit(disabled=False, key='-SUBMIT-', tooltip = self.submitTooltip), sg.Cancel()]
         ]
-    
+    def validateNewKeyword(self, newKW):
+        """Checks to see if a new keyword has already been used"""
+        newKW = newKW.upper() # all keywords are upper
+        return newKW not in self.kwList
+
     def toggleFrameVisibility(self, frameKey):
         """Toggles visibility for frames within the window"""
         print(f'Changing {frameKey}. Was {self.flagMap[frameKey]} now {not self.flagMap[frameKey]}')
         self.flagMap[frameKey] = not self.flagMap[frameKey] # toggle flag
         self.window[frameKey].update(visible=self.flagMap[frameKey]) # set visibility to new value of flag
-
-    
-    
+        
     def updateList(self, searchTerm, searchList, listboxKey):
         """Updates listbox based on a filtered list"""
         filteredList = self.filterList(searchTerm, searchList)
@@ -130,7 +127,6 @@ class Gui:
         """Creates a new window"""
         return sg.Window("Categorise Me!", self.generateCompleteLayout())
     
-
     def createDataTemplate(self):
         """Creates the template for data to be gathered"""
         return {
@@ -141,6 +137,14 @@ class Gui:
             "Bucket" : None,
             "Class" : "Expenses" # default
             }
+    
+    def filterList(self, searchTerm, searchList):
+        """Prepares the search term and filters the list"""
+        search = searchTerm.strip().title() # All subcategories are capitalized only
+        if search == '':
+            return searchList
+        else:
+            return list(filter(lambda eachItem: search == eachItem[:len(search)],searchList))
 
     def getSubcategoryLoop(self):
         """Uses the window to find the subcategory and new keyword/subcategory data"""
@@ -166,7 +170,6 @@ class Gui:
 
             # If submit...
             elif event == "-SUBMIT-": #Only available in the case of a new keyword
-                """Called on Submit"""
                 if values['-ONCEOFF FLAG-']:
                     self.data['Subcategory'] = values['-ONCEOFF SUBCATEGORY-'][0].title() #extract and format as title
                 elif values['-NEW KW-']: # To be explicit, but submit can't be access without keyword
@@ -199,31 +202,31 @@ class Gui:
                 toChange = self.flag2FrameMap[event]
                 self.toggleFrameVisibility(toChange) # show or hide frames
             
-            # disable/enable submit based on once-off checkbox
-            if values['-ONCEOFF FLAG-']:
+            """disable/enable submit based on once-off checkbox"""
+            # if values['-ONCEOFF FLAG-']:
                 # self.window['-NEW KW FLAG-'].update(disabled = True) # if once off, disable NEW KEYWORD
-                if self.isSelected(values['-ONCEOFF SUBCATEGORY-']):
-                    self.window['-SUBMIT-'].update(disabled = False)
+                # if self.isSelected(values['-ONCEOFF SUBCATEGORY-']):
+                    # self.window['-SUBMIT-'].update(disabled = False)
             # elif not values['-ONCEOFF FLAG-']:
             #     self.window['-NEW KW FLAG-'].update(disabled = False)
 
-            # disable/enable submit based on new kw flag
-            if values['-NEW KW FLAG-']:
-                # self.window['-NEW SUBCAT FLAG-'].update(disabled=False) # if new kw flag, then allow new subcat flag
-                validKWInfo = all([self.validate("kw", values['-NEW KW-'], self.kwList), self.usefulKeyword(values['-NEW KW-'])]) # If the kw is useful and valid           
-                if not values['-NEW SUBCAT FLAG-']: # if we're NOT using a new subcategory
-                    self.data["New Subcategory"] = False # set new subcat explicitly to false
-                    if validKWInfo and self.isSelected(values['-SUBCAT LISTBOX-']): # allow submit if valid, useful keyword and a subcategory selection made
-                        self.window['-SUBMIT-'].update(disabled = False)
-                    else:
-                        self.window['-SUBMIT-'].update(disabled = True)
-                if values['-NEW SUBCAT FLAG-']:
-                    self.data["New Subcategory"] = True
-                    validSubcatInfo = self.validate("subcat", '-NEW SUBCAT-', self.subcategoryList)
-                    if validKWInfo and validSubcatInfo and self.isSelected(values['-CAT LISTBOX-']) and self.isSelected(values['-BUCKET-']) and self.isSelected(values['-CLASS-']):
-                        self.window['-SUBMIT-'].update(disabled = False)
-                    else:
-                        self.window['-SUBMIT-'].update(disabled = True)
+            """disable/enable submit based on new kw flag"""
+            # if values['-NEW KW FLAG-']:
+            #     # self.window['-NEW SUBCAT FLAG-'].update(disabled=False) # if new kw flag, then allow new subcat flag
+            #     validKWInfo = all([self.validate("kw", values['-NEW KW-'], self.kwList), self.usefulKeyword(values['-NEW KW-'])]) # If the kw is useful and valid           
+            #     if not values['-NEW SUBCAT FLAG-']: # if we're NOT using a new subcategory
+            #         self.data["New Subcategory"] = False # set new subcat explicitly to false
+            #         # if validKWInfo and self.isSelected(values['-SUBCAT LISTBOX-']): # allow submit if valid, useful keyword and a subcategory selection made
+            #         #     self.window['-SUBMIT-'].update(disabled = False)
+            #         # else:
+            #         #     self.window['-SUBMIT-'].update(disabled = True)
+            #     if values['-NEW SUBCAT FLAG-']:
+            #         self.data["New Subcategory"] = True
+            #         # validSubcatInfo = self.validate("subcat", '-NEW SUBCAT-', self.subcategoryList)
+            #         # if validKWInfo and validSubcatInfo and self.isSelected(values['-CAT LISTBOX-']) and self.isSelected(values['-BUCKET-']) and self.isSelected(values['-CLASS-']):
+            #         #     self.window['-SUBMIT-'].update(disabled = False)
+            #         # else:
+            #         #     self.window['-SUBMIT-'].update(disabled = True)
 
             
             

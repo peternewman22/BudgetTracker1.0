@@ -30,7 +30,7 @@ class Helper:
     def generateBaseMap():
         # Takes the clipboard and generates the list
         try:
-            df = pd.read_clipboard()
+            df = pd.read_clipboard(parse_dates=True)
             subcats = df['Subcategory'].to_list()
             categories = df['Category'].to_list()
             classes = df['Class'].to_list()
