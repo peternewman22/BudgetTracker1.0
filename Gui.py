@@ -161,7 +161,6 @@ class Gui:
             # showing debug information
             if event != '__TIMEOUT__' and values['-DEBUG-']:
                 print(f"event: {event} \nvalues: {values}\n")
-                print(f"event is of type {type(event)}")
 
             # detecting quick match selections
             elif event in self.matches:
