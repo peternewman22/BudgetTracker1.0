@@ -16,19 +16,19 @@ class Gui:
         self.bucketList = bucketList
         self.kwMap = kwMap
         self.kwList = keywordList
-        self.searchOnceOff = SearchBox("OnceOff Subcategory","-ONCEOFF LISTBOX-",self.subcategoryList,5,True,"-ONCEOFF SEARCH TERM-")
-        self.searchSubcategory = SearchBox("Subcategory","-SUBCAT LISTBOX-",self.subcategoryList,5,True,"-SUBCAT SEARCH TERM-")
-        self.searchCategory = SearchBox("Category","-CAT LISTBOX-",self.categoryList,5,True,"-CAT SEARCH TERM-")
-        self.searchBucket = SearchBox("Bucket","-BUCKET-",self.bucketList,3,False)
-        self.searchClass = SearchBox("Class","-CLASS-",["Expenditure", "Income"],2,False)
+        self.searchOnceOff = SearchBox("OnceOff Subcategory",self.subcategoryList,"-ONCEOFF LISTBOX-",5,True,"-ONCEOFF SEARCH TERM-")
+        self.searchSubcategory = SearchBox("Subcategory",self.subcategoryList,"-SUBCAT LISTBOX-",5,True,"-SUBCAT SEARCH TERM-")
+        self.searchCategory = SearchBox("Category",self.categoryList,"-CAT LISTBOX-",5,True,"-CAT SEARCH TERM-")
+        self.searchBucket = SearchBox("Bucket",self.bucketList,"-BUCKET-",3,False,None)
+        self.searchClass = SearchBox("Class",["Expenditure", "Income"],"-CLASS-",2,False,None)
         self.showNewKWFrame = False # Use these to deterimine whether an update is due or if it's already been triggered
         self.showNewSubcatFrame = False
         self.showOnceOffFrame = False
         self.window = None
         self.validSubmit = False
         self.data = self.createDataTemplate()
-        self.flagMap = {'-NEW KW FRAME-' : self.showNewKWFrame, '-NEW SUBCAT FRAME-' : self.showNewSubcatFrame, '-ONCEOFF FRAME-' : self.showOnceOffFrame}
-        self.flag2FrameMap = {'-NEW KW FLAG-':'-NEW KW FRAME-', '-NEW SUBCAT FLAG-':'-NEW SUBCAT FRAME-', '-ONCEOFF FLAG-':'-ONCEOFF FRAME-'}
+        # self.flagMap = {'-NEW KW FRAME-' : self.showNewKWFrame, '-NEW SUBCAT FRAME-' : self.showNewSubcatFrame, '-ONCEOFF FRAME-' : self.showOnceOffFrame}
+        # self.flag2FrameMap = {'-NEW KW FLAG-':'-NEW KW FRAME-', '-NEW SUBCAT FLAG-':'-NEW SUBCAT FRAME-', '-ONCEOFF FLAG-':'-ONCEOFF FRAME-'}
         self.submitTooltip = "Only unique keywords and subcategories can be submitted..."
 
 
@@ -153,14 +153,15 @@ class Gui:
         while True:
             event, values = self.window.Read(timeout = 1000)
 
-            # Cancel?
+            # Cancel
             if event in (None, "Cancel", "Uncategorised"):
                 print("Categorised as 'Uncategorised'")
                 break
             
             # showing debug information
             if event != '__TIMEOUT__' and values['-DEBUG-']:
-                print(f"event: {event} \nvalues: {values}\n\n")
+                print(f"event: {event} \nvalues: {values}\n")
+                print(f"event is of type {type(event)}")
 
             # detecting quick match selections
             elif event in self.matches:
@@ -200,18 +201,21 @@ class Gui:
             # if there's a change to any of the flag checkboxes, update visibility
             # this can be refactored to be neater
             
-            elif event == '-NEW KW FLAG':
+            elif event == '-NEW KW FLAG-':
+                print(f"showNewKWFrame was {self.showNewKWFrame} and is now {not self.showNewKWFrame}")
                 self.showNewKWFrame = not self.showNewKWFrame
-                window['-NEW KW FRAME-'].update(visible=self.showNewSubcatFrame)
+                self.window['-NEW KW FRAME-'].update(visible=self.showNewSubcatFrame)
 
             elif event == '-NEW SUBCAT FLAG-':
+                print(f"showNewSubcatFrame was {self.showNewSubcatFrame} and is now {not self.showNewSubcatFrame}")
                 self.showNewSubcatFrame = not self.showNewSubcatFrame
-                window['-NEW SUBCAT FRAME-'].update(visible = self.showNewSubcatFrame)
+                self.window['-NEW SUBCAT FRAME-'].update(visible = self.showNewSubcatFrame)
 
             elif event == '-ONCEOFF FLAG-':
+                print(f"showNewSubcatFrame was {self.showNewSubcatFrame} and is now {not self.showNewSubcatFrame}")
                 self.showOnceOffFrame = not self.showOnceOffFrame
-                window['-ONCEOFF FRAME-'].update(visible = self.showOnceOffFrame)
-                
+                self.window['-ONCEOFF FRAME-'].update(visible = self.showOnceOffFrame)
+
             # elif event in ("-NEW KW FLAG-", "-NEW SUBCAT FLAG-", "-ONCEOFF FLAG-"):
             #     toChange = self.flag2FrameMap[event]
             #     self.toggleFrameVisibility(toChange) # show or hide frames
