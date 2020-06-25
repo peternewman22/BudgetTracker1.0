@@ -14,7 +14,7 @@ class SearchBox:
         """Creates layout depending on if searchability"""
         if self.searchable:
             return [
-                [sg.T(f"Choose a {self.title}: "), sg.InputText(key=searchKey, enable_events = True)],
+                [sg.T(f"Choose a {self.title}: "), sg.InputText(key=self.searchKey, enable_events = True)],
                 [sg.Listbox(self.searchList, key = self.choiceKey, size=(20,self.displaySize), select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events=True)]]
         else:
             return [

@@ -16,8 +16,8 @@ class Gui:
         self.bucketList = bucketList
         self.kwMap = kwMap
         self.kwList = keywordList
-        self.searchOnceOff = SearchBox("OnceOff Subcategory","-ONCEOFF LISTBOX-",self.subcategoryList,5,True,'-ONCEOFF SEARCH TERM-')
-        self.searchSubcategory = SearchBox("Subcategory","-SUBCAT LISTBOX-",self.subcategoryList,"-SUBCAT SEARCH TERM-", )
+        self.searchOnceOff = SearchBox("OnceOff Subcategory","-ONCEOFF LISTBOX-",self.subcategoryList,5,True,"-ONCEOFF SEARCH TERM-")
+        self.searchSubcategory = SearchBox("Subcategory","-SUBCAT LISTBOX-",self.subcategoryList,5,True,"-SUBCAT SEARCH TERM-")
         self.searchCategory = SearchBox("Category","-CAT LISTBOX-",self.categoryList,5,True,"-CAT SEARCH TERM-")
         self.searchBucket = SearchBox("Bucket","-BUCKET-",self.bucketList,3,False)
         self.searchClass = SearchBox("Class","-CLASS-",["Expenditure", "Income"],2,False)
@@ -50,7 +50,7 @@ class Gui:
         """Generates the Once-Off Categorisation Frame"""
         layout = []
         self.searchOnceOff.addToFrame(layout)
-        return [sg.Frame("Once-Off Categorisation", layout = layout, visible=False, key='-ONCEOFF FRAME-')]
+        return [sg.Frame("Once-Off Categorisation", layout = layout, visible=self.showOnceOffFrame, key='-ONCEOFF FRAME-')]
 
     # New Subcategory Frame
     def generateNewSubcatFrame(self):
@@ -59,14 +59,14 @@ class Gui:
         layout = self.searchCategory.addToFrame(layout)
         layout = self.searchBucket.addToFrame(layout) 
         layout = self.searchClass.addToFrame(layout)
-        return [sg.Frame("New Subcategory", layout = layout, visible=True , key='-NEW SUBCAT FRAME-')]
+        return [sg.Frame("New Subcategory", layout = layout, visible=self.showNewSubcatFrame , key='-NEW SUBCAT FRAME-')]
 
     # New Keyword frame
     def generateNewKWFrame(self):
         """Generates the New Keyword Frame"""
         layout = [[sg.T("New Keyword: "), sg.InputText(key='-NEW KW-')]]
         layout = self.searchSubcategory.addToFrame(layout)
-        return [sg.Frame("New Keyword", layout = layout, visible=False , key='-NEW KW FRAME-')]
+        return [sg.Frame("New Keyword", layout = layout, visible=self.showNewKWFrame , key='-NEW KW FRAME-')]
 
     # Checkboxes / Flags
     def generateFlags(self):
@@ -147,7 +147,7 @@ class Gui:
             return list(filter(lambda eachItem: search == eachItem[:len(search)],searchList))
 
     def getSubcategoryLoop(self):
-        """Uses the window to find the subcategory and new keyword/subcategory data"""
+        """Uses the gui window to find the subcategory and new keyword/subcategory data"""
                 
         self.window = self.generateWindow()
         while True:
@@ -198,9 +198,23 @@ class Gui:
                   
 
             # if there's a change to any of the flag checkboxes, update visibility
-            elif event in ("-NEW KW FLAG-", "-NEW SUBCAT FLAG-", "-ONCEOFF FLAG-"):
-                toChange = self.flag2FrameMap[event]
-                self.toggleFrameVisibility(toChange) # show or hide frames
+            # this can be refactored to be neater
+            
+            elif event == '-NEW KW FLAG':
+                self.showNewKWFrame = not self.showNewKWFrame
+                window['-NEW KW FRAME-'].update(visible=self.showNewSubcatFrame)
+
+            elif event == '-NEW SUBCAT FLAG-':
+                self.showNewSubcatFrame = not self.showNewSubcatFrame
+                window['-NEW SUBCAT FRAME-'].update(visible = self.showNewSubcatFrame)
+
+            elif event == '-ONCEOFF FLAG-':
+                self.showOnceOffFrame = not self.showOnceOffFrame
+                window['-ONCEOFF FRAME-'].update(visible = self.showOnceOffFrame)
+                
+            # elif event in ("-NEW KW FLAG-", "-NEW SUBCAT FLAG-", "-ONCEOFF FLAG-"):
+            #     toChange = self.flag2FrameMap[event]
+            #     self.toggleFrameVisibility(toChange) # show or hide frames
             
             """disable/enable submit based on once-off checkbox"""
             # if values['-ONCEOFF FLAG-']:
