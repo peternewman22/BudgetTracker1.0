@@ -90,7 +90,7 @@ class Application:
             eachDesc = self.descriptions[index]
             # find kw matches
             matches = self.getMatches(eachDesc)
-            print(f"Matches found: {matches}")
+            print(f"Matches found: {len(matches)}")
             # construct a gui object
             if len(matches) != 1 or self.safeMode: # If it's safeMode ALWAYS prompt
                 gui = self.generateGUI(eachDesc, matches)
