@@ -16,8 +16,8 @@ class Gui:
         self.bucketList = bucketList
         self.kwMap = kwMap
         self.kwList = keywordList
-        self.searchOnceOff = SearchBox("OnceOff Subcategory","-ONCEOFF SUBCAT")
-        self.searchSubcategory = SearchBox("Subcategory","-")
+        self.searchOnceOff = SearchBox("OnceOff Subcategory","-ONCEOFF LISTBOX-",self.subcategoryList,5,True,'-ONCEOFF SEARCH TERM-')
+        self.searchSubcategory = SearchBox("Subcategory","-SUBCAT LISTBOX-",self.subcategoryList,"-SUBCAT SEARCH TERM-", )
         self.searchCategory = SearchBox("Category","-CAT LISTBOX-",self.categoryList,5,True,"-CAT SEARCH TERM-")
         self.searchBucket = SearchBox("Bucket","-BUCKET-",self.bucketList,3,False)
         self.searchClass = SearchBox("Class","-CLASS-",["Expenditure", "Income"],2,False)
