@@ -26,11 +26,15 @@ class Helper:
         with open(jsonFile, "w") as fh:
             json.dump(dict2save, fh, indent = 2, sort_keys=True)
 
+
     @staticmethod
     def generateBaseMap():
         # Takes the clipboard and generates the list
         try:
-            df = pd.read_clipboard(parse_dates=True)
+            if os.path.isfile('BaseMap.csv'):
+                df = pd.read_csv('BaseMap.csv',header=0)
+            else:
+                df = pd.read_clipboard(parse_dates=True)
             subcats = df['Subcategory'].to_list()
             categories = df['Category'].to_list()
             classes = df['Class'].to_list()
@@ -101,7 +105,8 @@ class Helper:
         if event != None:
             try:
                 settings['safeMode'] = values["-SAFE MODE-"]
-                settings['theme'] = values["-THEME-"][0]
+                if len(values["-THEME-"])>0:
+                    settings['theme'] = values["-THEME-"][0]
             except Exception as e:
                 print(e)
 
