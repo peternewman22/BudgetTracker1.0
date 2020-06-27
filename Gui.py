@@ -27,8 +27,8 @@ class Gui:
         self.window = None
         self.validSubmit = False
         self.data = self.createDataTemplate()
-        # self.flagMap = {'-NEW KW FRAME-' : self.showNewKWFrame, '-NEW SUBCAT FRAME-' : self.showNewSubcatFrame, '-ONCEOFF FRAME-' : self.showOnceOffFrame}
-        # self.flag2FrameMap = {'-NEW KW FLAG-':'-NEW KW FRAME-', '-NEW SUBCAT FLAG-':'-NEW SUBCAT FRAME-', '-ONCEOFF FLAG-':'-ONCEOFF FRAME-'}
+        self.flagMap = {'-NEW KW FRAME-' : self.showNewKWFrame, '-NEW SUBCAT FRAME-' : self.showNewSubcatFrame, '-ONCEOFF FRAME-' : self.showOnceOffFrame}
+        self.flag2FrameMap = {'-NEW KW FLAG-':'-NEW KW FRAME-', '-NEW SUBCAT FLAG-':'-NEW SUBCAT FRAME-', '-ONCEOFF FLAG-':'-ONCEOFF FRAME-'}
         self.submitTooltip = "Only unique keywords and subcategories can be submitted..."
 
 
@@ -88,7 +88,7 @@ class Gui:
             self.generateOnceOffFrame(),
             self.generateNewKWFrame(),
             self.generateNewSubcatFrame(),
-            [sg.Button("Uncategorised"),sg.Submit(disabled=False, key='-SUBMIT-', tooltip = self.submitTooltip), sg.Cancel()]
+            [sg.Button("Uncategorised"),sg.Submit(disabled=False, key='-SUBMIT-', tooltip = self.submitTooltip), sg.Cancel(),sg.Button("End Program")]
         ]
     def validateNewKeyword(self, newKW):
         """Checks to see if a new keyword has already been used"""
@@ -135,7 +135,8 @@ class Gui:
             "New Subcategory" : False,
             "Category" : None,
             "Bucket" : None,
-            "Class" : "Expenses" # default
+            "Class" : "Expenses", # default - most classes are
+            "End" : False # Triggers the end of the program
             }
     
     def filterList(self, searchTerm, searchList):
@@ -157,14 +158,19 @@ class Gui:
             if event in (None, "Cancel", "Uncategorised"):
                 print("Categorised as 'Uncategorised'")
                 break
+
+            elif event == "End Program":
+                self.data['End'] == True
+                print('Ending program without categorising the last value')
+                break
+
             
             # showing debug information
-            if event != '__TIMEOUT__' and values['-DEBUG-']:
+            elif event != '__TIMEOUT__' and values['-DEBUG-']:
                 print(f"event: {event} \nvalues: {values}\n")
-                print(f"event is of type {type(event)}")
 
             # detecting quick match selections
-            elif event in self.matches:
+            if event in self.matches:
                 self.data['Subcategory'] = self.kwMap[event] # look up the keyword mapping and overwrite Subcategory
                 print(f"Categorised using {event} --> {self.data['Subcategory']}")
                 break
@@ -204,7 +210,7 @@ class Gui:
             elif event == '-NEW KW FLAG-':
                 print(f"showNewKWFrame was {self.showNewKWFrame} and is now {not self.showNewKWFrame}")
                 self.showNewKWFrame = not self.showNewKWFrame
-                self.window['-NEW KW FRAME-'].update(visible=self.showNewSubcatFrame)
+                self.window['-NEW KW FRAME-'].update(visible=self.showNewKWFrame)
 
             elif event == '-NEW SUBCAT FLAG-':
                 print(f"showNewSubcatFrame was {self.showNewSubcatFrame} and is now {not self.showNewSubcatFrame}")
