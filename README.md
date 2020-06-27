@@ -55,6 +55,7 @@ Embarrassingly, I'm yet to learn how to use databases. My task for myself in thi
 * ~~Refactor: collect creating searchbox into a method or class~~
 * ~~Fix visibility bug~~
 * ~~Strip away buggy validation~~
+* New feature: user to specify output filename and location 
 * Refactor: sort out muddle of functionality - searching and updating the searchbox is currently done in GUI. Ideally, it would be under SearchBox.
 * New feature: Right Click to edit or delete keyword
 * New feature: Adding a resume button

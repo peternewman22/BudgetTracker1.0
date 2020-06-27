@@ -178,7 +178,7 @@ class Gui:
             # If submit...
             elif event == "-SUBMIT-": #Only available in the case of a new keyword
                 if values['-ONCEOFF FLAG-']:
-                    self.data['Subcategory'] = values['-ONCEOFF SUBCATEGORY-'][0].title() #extract and format as title
+                    self.data['Subcategory'] = values['-ONCEOFF LISTBOX-'][0].title() #extract and format as title
                 elif values['-NEW KW-']: # To be explicit, but submit can't be access without keyword
                     self.data['New Keyword'] = values['-NEW KW-'].upper() # extract the keyword
                     if values['-NEW SUBCAT-']: # changed to rely on the CB's 
@@ -201,7 +201,7 @@ class Gui:
                 self.updateList(values['-CAT SEARCH TERM-'],self.categoryList,'-CAT LISTBOX-') # update categories on display
             
             elif event == '-ONCEOFF SEARCH TERM-':
-                self.updateList(values['-ONCEOFF SEARCH TERM-'], self.subcategoryList, '-ONCEOFF SUBCATEGORY-')
+                self.updateList(values['-ONCEOFF SEARCH TERM-'], self.subcategoryList, '-ONCEOFF LISTBOX-')
                   
 
             # if there's a change to any of the flag checkboxes, update visibility
@@ -229,7 +229,7 @@ class Gui:
             """disable/enable submit based on once-off checkbox"""
             # if values['-ONCEOFF FLAG-']:
                 # self.window['-NEW KW FLAG-'].update(disabled = True) # if once off, disable NEW KEYWORD
-                # if self.isSelected(values['-ONCEOFF SUBCATEGORY-']):
+                # if self.isSelected(values['-ONCEOFF LISTBOX-']):
                     # self.window['-SUBMIT-'].update(disabled = False)
             # elif not values['-ONCEOFF FLAG-']:
             #     self.window['-NEW KW FLAG-'].update(disabled = False)

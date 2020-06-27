@@ -84,7 +84,7 @@ class Helper:
         settings = {
             "safeMode" : True,
             "theme" : 'Dark Blue',
-            "fileName": sg.popup_get_file('Document to open')
+            "fileName": sg.popup_get_file('Bank statement to categorise')
         }
 
         sg.change_look_and_feel("Dark Blue")
