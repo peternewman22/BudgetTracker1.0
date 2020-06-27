@@ -102,7 +102,7 @@ class Application:
                 
                 subcategory = data['Subcategory'] # extract the subcategory
                 if data['New Keyword'] != None: # if a new keyword is declared, then save it and extract the subcategory which will be chosen
-                    self.saveNewKW(data['Keyword'], subcategory)
+                    self.saveNewKW(data['New Keyword'], subcategory)
                 if data['New Subcategory']: # if a new 
                     self.saveNewSubcategory(subcategory, data['Category'], data['Bucket'], data['Class'])  
                 
