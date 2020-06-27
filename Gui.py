@@ -160,7 +160,7 @@ class Gui:
                 break
 
             elif event == "End Program":
-                self.data['End'] == True
+                self.data['End'] = True
                 print('Ending program without categorising the last value')
                 break
 
