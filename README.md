@@ -65,6 +65,7 @@ Embarrassingly, I'm yet to learn how to use databases. My task for myself in thi
 
 ## Current Bugs
 
+* Detecting new subcategory error
 
 ## Stretch Goals / Next Moves for BudgetTracker1.0
 
