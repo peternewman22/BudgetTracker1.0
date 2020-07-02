@@ -23,9 +23,9 @@ class Application:
     def processStatement(self, fname):
         df = None
         if Helper.extractFileExtension(fname) == '.xlsx':
-            df =  pd.read_excel(fname,parse_dates=True)
+            df =  pd.read_excel(fname,parse_dates=[0,1])
         elif Helper.extractFileExtension(fname) == '.csv':
-            df = pd.read_csv(fname, parse_dates=True)
+            df = pd.read_csv(fname, parse_dates=[0,1])
 
         # Add Year Column
         try:
