@@ -96,17 +96,20 @@ class Application:
                 gui = self.generateGUI(eachDesc, matches)
                 # use the gui to find the correct subcategory
                 data = gui.getSubcategoryLoop()
+                
+                if data['End']: # Detecting end program trigger
+                    break
+                
                 subcategory = data['Subcategory'] # extract the subcategory
                 if data['New Keyword'] != None: # if a new keyword is declared, then save it and extract the subcategory which will be chosen
-                    self.saveNewKW(data['Keyword'], subcategory)
+                    self.saveNewKW(data['New Keyword'], subcategory)
                 if data['New Subcategory']: # if a new 
-                    self.saveNewSubcategory(subcategory, data['Category'], data['Bucket'], data['Class'])
+                    self.saveNewSubcategory(subcategory, data['Category'], data['Bucket'], data['Class'])  
                 
-                
-            elif not self.safeMode and len(matches) == 1:
+            elif not self.safeMode and len(matches) == 1: # Alternative: subcategory is automatically categorised based on the keyword map
                 subcategory = self.kwMap[matches[0]]
-            # construct the row from the dataframe and add the subcategory
-            row = self.statement.iloc[index,:].to_list()
+            
+            row = self.statement.iloc[index,:].to_list() # construct the row from the dataframe and add the subcategory
             row.append(subcategory)
             row.append(self.subcatMap[subcategory]['Category'])
             row.append(self.subcatMap[subcategory]['Bucket'])

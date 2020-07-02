@@ -27,8 +27,8 @@ class Gui:
         self.window = None
         self.validSubmit = False
         self.data = self.createDataTemplate()
-        # self.flagMap = {'-NEW KW FRAME-' : self.showNewKWFrame, '-NEW SUBCAT FRAME-' : self.showNewSubcatFrame, '-ONCEOFF FRAME-' : self.showOnceOffFrame}
-        # self.flag2FrameMap = {'-NEW KW FLAG-':'-NEW KW FRAME-', '-NEW SUBCAT FLAG-':'-NEW SUBCAT FRAME-', '-ONCEOFF FLAG-':'-ONCEOFF FRAME-'}
+        self.flagMap = {'-NEW KW FRAME-' : self.showNewKWFrame, '-NEW SUBCAT FRAME-' : self.showNewSubcatFrame, '-ONCEOFF FRAME-' : self.showOnceOffFrame}
+        self.flag2FrameMap = {'-NEW KW FLAG-':'-NEW KW FRAME-', '-NEW SUBCAT FLAG-':'-NEW SUBCAT FRAME-', '-ONCEOFF FLAG-':'-ONCEOFF FRAME-'}
         self.submitTooltip = "Only unique keywords and subcategories can be submitted..."
 
 
@@ -88,7 +88,7 @@ class Gui:
             self.generateOnceOffFrame(),
             self.generateNewKWFrame(),
             self.generateNewSubcatFrame(),
-            [sg.Button("Uncategorised"),sg.Submit(disabled=False, key='-SUBMIT-', tooltip = self.submitTooltip), sg.Cancel()]
+            [sg.Button("Uncategorised"),sg.Submit(disabled=False, key='-SUBMIT-', tooltip = self.submitTooltip), sg.Cancel(),sg.Button("End Program")]
         ]
     def validateNewKeyword(self, newKW):
         """Checks to see if a new keyword has already been used"""
@@ -135,7 +135,8 @@ class Gui:
             "New Subcategory" : False,
             "Category" : None,
             "Bucket" : None,
-            "Class" : "Expenses" # default
+            "Class" : "Expenses", # default - most classes are
+            "End" : False # Triggers the end of the program
             }
     
     def filterList(self, searchTerm, searchList):
@@ -157,13 +158,19 @@ class Gui:
             if event in (None, "Cancel", "Uncategorised"):
                 print("Categorised as 'Uncategorised'")
                 break
+
+            elif event == "End Program":
+                self.data['End'] = True
+                print('Ending program without categorising the last value')
+                break
+
             
             # showing debug information
-            if event != '__TIMEOUT__' and values['-DEBUG-']:
+            elif event != '__TIMEOUT__' and values['-DEBUG-']:
                 print(f"event: {event} \nvalues: {values}\n")
 
             # detecting quick match selections
-            elif event in self.matches:
+            if event in self.matches:
                 self.data['Subcategory'] = self.kwMap[event] # look up the keyword mapping and overwrite Subcategory
                 print(f"Categorised using {event} --> {self.data['Subcategory']}")
                 break
@@ -171,7 +178,7 @@ class Gui:
             # If submit...
             elif event == "-SUBMIT-": #Only available in the case of a new keyword
                 if values['-ONCEOFF FLAG-']:
-                    self.data['Subcategory'] = values['-ONCEOFF SUBCATEGORY-'][0].title() #extract and format as title
+                    self.data['Subcategory'] = values['-ONCEOFF LISTBOX-'][0].title() #extract and format as title
                 elif values['-NEW KW-']: # To be explicit, but submit can't be access without keyword
                     self.data['New Keyword'] = values['-NEW KW-'].upper() # extract the keyword
                     if values['-NEW SUBCAT-']: # changed to rely on the CB's 
@@ -194,7 +201,7 @@ class Gui:
                 self.updateList(values['-CAT SEARCH TERM-'],self.categoryList,'-CAT LISTBOX-') # update categories on display
             
             elif event == '-ONCEOFF SEARCH TERM-':
-                self.updateList(values['-ONCEOFF SEARCH TERM-'], self.subcategoryList, '-ONCEOFF SUBCATEGORY-')
+                self.updateList(values['-ONCEOFF SEARCH TERM-'], self.subcategoryList, '-ONCEOFF LISTBOX-')
                   
 
             # if there's a change to any of the flag checkboxes, update visibility
@@ -203,7 +210,7 @@ class Gui:
             elif event == '-NEW KW FLAG-':
                 print(f"showNewKWFrame was {self.showNewKWFrame} and is now {not self.showNewKWFrame}")
                 self.showNewKWFrame = not self.showNewKWFrame
-                self.window['-NEW KW FRAME-'].update(visible=self.showNewSubcatFrame)
+                self.window['-NEW KW FRAME-'].update(visible=self.showNewKWFrame)
 
             elif event == '-NEW SUBCAT FLAG-':
                 print(f"showNewSubcatFrame was {self.showNewSubcatFrame} and is now {not self.showNewSubcatFrame}")
@@ -222,7 +229,7 @@ class Gui:
             """disable/enable submit based on once-off checkbox"""
             # if values['-ONCEOFF FLAG-']:
                 # self.window['-NEW KW FLAG-'].update(disabled = True) # if once off, disable NEW KEYWORD
-                # if self.isSelected(values['-ONCEOFF SUBCATEGORY-']):
+                # if self.isSelected(values['-ONCEOFF LISTBOX-']):
                     # self.window['-SUBMIT-'].update(disabled = False)
             # elif not values['-ONCEOFF FLAG-']:
             #     self.window['-NEW KW FLAG-'].update(disabled = False)

@@ -11,9 +11,6 @@ __pycache__/
 *.xlsx
 *.json
 
-# Exlude pictures for the README.md
-*.png
-
 # Distribution / packaging
 .Python
 build/

@@ -18,7 +18,6 @@ At the outset, this project is an opportunity for me to:
     * Category eg: Food, Car Costs, Movies
     * Bucket (if you're a barefoot investor) eg: Blow, Splurge, Smile
     * Class eg: Expenditure, Income
-    * ![Example BaseMap](BaseMap.png?raw=true)
 1. Copy this to the clipboard or make a csv and run the program.
 1. Initialise a keyword:subcategory map file using the data from the clipboard. (Work in progress).
 1. Identify the bankstatement and turn on **safeMode** (manually categorise ALL transactions) or turn off **safeMode** (where there is a single match for a keyword, categorise using the keyword:subcategory map file)
@@ -34,6 +33,14 @@ At the outset, this project is an opportunity for me to:
 The validation is a bit buggy still, but otherwise, it works ok.
 Much work to go.
 
+## Screenshots
+* Base structure example
+
+![Example Base map](ExampleBaseMap.png?raw=True)
+* All categorisation options: Quick Match, Once Off, Establishing a new Keyword pairing with the option of adding a new subcategory. (NB: Please choose different theme to this one. Luckily, you have the options at the beginning of the program.)
+
+![All fields](Fields.png?raw=True)
+
 ## Why no database
 
 Embarrassingly, I'm yet to learn how to use databases. My task for myself in this project so far is to learn to code a GUI. For now, reading and writing to json files will do
@@ -46,17 +53,19 @@ Embarrassingly, I'm yet to learn how to use databases. My task for myself in thi
 * ~~Fix Gui - base collection of data on the flags at submit~~
 * ~~Refactor: change to be event based~~
 * ~~Refactor: collect creating searchbox into a method or class~~
+* ~~Fix visibility bug~~
+* ~~Strip away buggy validation~~
+* New feature: user to specify output filename and location 
 * Refactor: sort out muddle of functionality - searching and updating the searchbox is currently done in GUI. Ideally, it would be under SearchBox.
 * New feature: Right Click to edit or delete keyword
 * New feature: Adding a resume button
 * New feature: Add/remove categories
 * Fix Application/GUI to use the Quick Match options - testing require
-* Strip away buggy validation
 * Restructure adding search boxes to frames. Very clunky right now.
 
 ## Current Bugs
 
-* In moving to more event-based system, I've currently broken toggling visibility somehow. It won't catch the events! Very frustrating.
+* Detecting new subcategory error
 
 ## Stretch Goals / Next Moves for BudgetTracker1.0
 
