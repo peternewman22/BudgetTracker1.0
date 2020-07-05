@@ -1,6 +1,7 @@
 import pandas as pd
 from Helper import Helper
 from Gui import Gui
+from Keys import Keys
 
 class Application:
     """Can create the initial maps, handles dataframes, iterates through the descriptions"""
@@ -86,20 +87,20 @@ class Application:
                 if data['End']: # Detecting end program trigger
                     break
                 
-                subcategory = data['Subcategory'] # extract the subcategory
-                if data['New Keyword'] != None: # if a new keyword is declared, then save it and extract the subcategory which will be chosen
-                    self.save_new_kw(data['New Keyword'], subcategory)
-                if data['New Subcategory']: # if a new 
-                    self.save_new_subcategory(subcategory, data['Category'], data['Bucket'], data['Class'])  
+                subcategory = data[Keys.data_subcategory] # extract the subcategory
+                if data[Keys.data_end_flag.value] != None: # if a new keyword is declared, then save it and extract the subcategory which will be chosen
+                    self.save_new_kw(data[Keys.data_new_kw.value], subcategory)
+                if data[Keys.data_is_new_subcategory.value]: # if a new 
+                    self.save_new_subcategory(subcategory, data[Keys.data_category.value], data[Keys.data_bucket.value], data[Keys.data_class.value])  
                 
             elif not self.in_manual_mode and len(matches) == 1: # Alternative: subcategory is automatically categorised based on the keyword map
                 subcategory = self.kwMap[matches[0]]
             
             row = self.statement.iloc[index,:].to_list() # construct the row from the dataframe and add the subcategory
             row.append(subcategory)
-            row.append(self.subcat_map[subcategory]['Category'])
-            row.append(self.subcat_map[subcategory]['Bucket'])
-            row.append(self.subcat_map[subcategory]['Class'])
+            row.append(self.subcat_map[subcategory][Keys.map_category.value])
+            row.append(self.subcat_map[subcategory][Keys.map_bucket.value])
+            row.append(self.subcat_map[subcategory][Keys.map_class.value])
             # write the row to the output.csv file
             Helper.write2csv(row)
 

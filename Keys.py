@@ -21,6 +21,9 @@ class Keys(Enum):
     frame_new_subcat = "frame_new_subcat"
     frame_onceoff = "frame_onceoff"
 
+    map_bucket = "Bucket"
+    map_category = "Category"
+    map_class = "Class"
     new_keyword = "new_keyword"
     new_subcategory = "new_subcategory"
 
