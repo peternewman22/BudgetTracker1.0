@@ -4,7 +4,7 @@ Note: Version 2 is much more action-based and extensively uses enable_events to 
 
 import PySimpleGUI as sg
 from SearchBox import SearchBox
-from Const import Flag, Button, Data, Frame, New, Selection, SearchTerm, Tooltips
+from Keys import Keys
 
 class Gui:
     """Handles creating each window, gathering the subcategory"""
@@ -17,19 +17,18 @@ class Gui:
         self.bucketList = bucketList
         self.kwMap = kwMap
         self.kwList = keywordList
-        self.searchOnceOff = SearchBox("Once-Off Subcategory",self.subcategoryList,Selection.selection_onceoff.value,5,True,SearchTerm.searchterm_onceoff.value)
-        self.searchSubcategory = SearchBox("Subcategory",self.subcategoryList,Selection.selection_subcategory.value,5,True,SearchTerm.searchterm_subcategory.value)
-        self.searchCategory = SearchBox("Category",self.categoryList,Selection.selection_category.value,5,True,SearchTerm.searchterm_category.value)
-        self.searchBucket = SearchBox("Bucket",self.bucketList,Selection.selection_bucket.value,3,False,None)
-        self.searchClass = SearchBox("Class",["Expenditure", "Income"],Selection.selection_class.value,2,False,None)
+        self.searchSubcategory = SearchBox("Subcategory",self.subcategoryList,Keys.selection_subcategory.value,5,True,Keys.searchterm_subcategory.value)
+        self.searchCategory = SearchBox("Category",self.categoryList,Keys.selection_category.value,5,True,Keys.searchterm_category.value)
+        self.searchBucket = SearchBox("Bucket",self.bucketList,Keys.selection_bucket.value,3,False,None)
+        self.searchClass = SearchBox("Class",["Expenditure", "Income"],Keys.selection_class.value,2,False,None)
         self.showNewKWFrame = False # Use these to deterimine whether an update is due or if it's already been triggered
         self.showNewSubcatFrame = False
         self.showOnceOffFrame = False
         self.window = None
         self.validSubmit = False
         self.data = self.createDataTemplate()
-        self.flagMap = {Frame.frame_new_kw.value : self.showNewKWFrame, Frame.frame_new_subcat.value : self.showNewSubcatFrame, Frame.frame_onceoff.value : self.showOnceOffFrame}
-        self.flag2FrameMap = {Flag.flag_new_kw.value : Frame.frame_new_kw.value, Flag.flag_new_subcat.value : Frame.frame_new_subcat, Flag.flag_onceoff : Frame.frame_onceoff}
+        self.flagMap = {Keys.frame_new_kw.value : self.showNewKWFrame, Keys.frame_new_subcat.value : self.showNewSubcatFrame, Keys.frame_onceoff.value : self.showOnceOffFrame}
+        self.flag2FrameMap = {Keys.flag_new_kw.value : Keys.frame_new_kw.value, Keys.flag_new_subcat.value : Keys.frame_new_subcat, Keys.flag_onceoff : Keys.frame_onceoff}
         self.submitTooltip = "Only unique keywords and subcategories can be submitted..."
 
 
@@ -49,29 +48,29 @@ class Gui:
     def generateOnceOffFrame(self):
         layout = []
         self.searchOnceOff.addToFrame(layout)
-        return [sg.Frame("Once-Off Categorisation", layout = layout, visible=self.showOnceOffFrame, key=Frame.frame_onceoff.value)]
+        return [sg.Frame("Once-Off Categorisation", layout = layout, visible=self.showOnceOffFrame, key=Keys.frame_onceoff.value)]
 
     # New Subcategory Frame
     def generateNewSubcatFrame(self):
-        layout = [[sg.T("New Subcat: "), sg.InputText(key=New.new_subcategory.value)]]
+        layout = [[sg.T("New Subcat: "), sg.InputText(key=Keys.new_subcategory.value)]]
         layout = self.searchCategory.addToFrame(layout)
         layout = self.searchBucket.addToFrame(layout) 
         layout = self.searchClass.addToFrame(layout)
-        return [sg.Frame("New Subcategory", layout = layout, visible=self.showNewSubcatFrame , key=Frame.frame_new_subcat.value)]
+        return [sg.Frame("New Subcategory", layout = layout, visible=self.showNewSubcatFrame , key=Keys.frame_new_subcat.value)]
 
     # New Keyword frame
     def generateNewKWFrame(self):
-        layout = [[sg.T("New Keyword: "), sg.InputText(key=New.new_keyword.value)]]
+        layout = [[sg.T("New Keyword: "), sg.InputText(key=Keys.new_keyword.value)]]
         layout = self.searchSubcategory.addToFrame(layout)
-        return [sg.Frame("New Keyword", layout = layout, visible=self.showNewKWFrame , key=Frame.frame_new_kw)]
+        return [sg.Frame("New Keyword", layout = layout, visible=self.showNewKWFrame , key=Keys.frame_new_kw)]
 
     # Checkboxes / Flags
     def generateFlags(self):
         # makes checkboxes: debug, newKW, newSubcat --> used to reveal parts of the window
-        debug = sg.CB("Debug Mode", default = True, key = Flag.flag_debug.value, enable_events=True)
-        onceoff = sg.CB("Once-Off", default = False, key = Flag.flag_onceoff.value,enable_events=True)
-        newKW = sg.CB("New Keyword", default = False, key = Flag.flag_new_kw.value,enable_events=True)
-        newSubcat = sg.CB("New Subcat", default = False, key = Flag.flag_new_subcat.value,enable_events=True)
+        debug = sg.CB("Debug Mode", default = True, key = Keys.flag_debug.value, enable_events=True)
+        onceoff = sg.CB("Once-Off", default = False, key = Keys.flag_onceoff.value,enable_events=True)
+        newKW = sg.CB("New Keyword", default = False, key = Keys.flag_new_kw.value,enable_events=True)
+        newSubcat = sg.CB("New Subcat", default = False, key = Keys.flag_new_subcat.value,enable_events=True)
         return [debug, onceoff, newKW, newSubcat]
 
     # final layout
@@ -84,7 +83,7 @@ class Gui:
             self.generateOnceOffFrame(),
             self.generateNewKWFrame(),
             self.generateNewSubcatFrame(),
-            [sg.Button("Uncategorised"),sg.Submit(disabled=False, key=Button.button_submit.value, tooltip = self.submitTooltip), sg.Cancel(),sg.Button(Button.button_end_program.value)]
+            [sg.Button("Uncategorised"),sg.Submit(disabled=False, key=Keys.button_submit.value, tooltip = self.submitTooltip), sg.Cancel(),sg.Button(Keys.button_end_program.value)]
         ]
     
     def validateNewKeyword(self, newKW):
@@ -127,13 +126,13 @@ class Gui:
     def createDataTemplate(self):
         """Creates the template for data to be gathered"""
         return {
-            Data.data_subcategory.value : "Uncategorised",
-            Data.data_new_kw.value: None,
-            Data.data_is_new_subcategory.value : False,
-            Data.data_category.value : None,
-            Data.data_bucket.value : "None",
-            Data.data_class.value : "Expenses", # default - most classes are
-            Data.data_end_flag : False # Triggers the end of the program
+            Keys.data_subcategory.value : "Uncategorised",
+            Keys.data_new_kw.value: None,
+            Keys.data_is_new_subcategory.value : False,
+            Keys.data_category.value : None,
+            Keys.data_bucket.value : "None",
+            Keys.data_class.value : "Expenses", # default - most classes are
+            Keys.data_end_flag : False # Triggers the end of the program
             }
     
     def filterList(self, searchTerm, searchList):
