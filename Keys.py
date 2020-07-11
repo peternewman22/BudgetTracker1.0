@@ -7,7 +7,9 @@ class Keys(Enum):
     flag_debug = "flag_debug"
     
     button_submit = "button_submit"
-    button_end_program = "button_end_program" 
+    button_end_program = "button_end_program"
+    button_cancel = "Cancel"
+    button_uncategorised = "Uncategorised"
 
     data_subcategory = "data_subcategory"
     data_new_kw = "data_new_kw"
@@ -16,6 +18,7 @@ class Keys(Enum):
     data_bucket = "data_bucket"
     data_class = "data_class"
     data_end_flag = "data_end_flag"
+
     
     frame_new_kw = "frame_new_kw"
     frame_new_subcat = "frame_new_subcat"
@@ -24,6 +27,7 @@ class Keys(Enum):
     map_bucket = "Bucket"
     map_category = "Category"
     map_class = "Class"
+
     new_keyword = "new_keyword"
     new_subcategory = "new_subcategory"
 

@@ -12,7 +12,7 @@ class SearchBox:
 
     def getRows(self):
         """Creates layout depending on if searchability"""
-        if self.searchable:
+        if self.is_searchable:
             return [
                 [sg.T(f"Choose a {self.search_desc}: "), sg.InputText(key=self.search_key, enable_events = True)],
                 [sg.Listbox(self.search_list, key = self.choice_key, size=(20,self.display_rows), select_mode="LISTBOX_SELECT_MODE_SINGLE", enable_events=True)]]
