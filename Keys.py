@@ -6,10 +6,11 @@ class Keys(Enum):
     flag_onceoff = "flag_onceoff"
     flag_debug = "flag_debug"
     
-    button_submit = "button_submit"
-    button_end_program = "button_end_program"
-    button_cancel = "Cancel"
-    button_uncategorised = "Uncategorised"
+    event_submit = "button_submit"
+    event_end_program = "button_end_program"
+    event_cancel = "Cancel"
+    event_uncategorised = "Uncategorised"
+    event_timeout = "__TIMEOUT__"
 
     data_subcategory = "data_subcategory"
     data_new_kw = "data_new_kw"
