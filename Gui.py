@@ -31,7 +31,77 @@ class Gui:
         self.flagMap = {Keys.frame_new_kw : self.showNewKWFrame, Keys.frame_new_subcat : self.showNewSubcatFrame, Keys.frame_onceoff : self.showOnceOffFrame}
         self.flag2FrameMap = {Keys.flag_new_kw : Keys.frame_new_kw, Keys.flag_new_subcat : Keys.frame_new_subcat, Keys.flag_onceoff : Keys.frame_onceoff}
         self.submitTooltip = "Only unique keywords and subcategories can be submitted..."
+        self.event = None
+        self.values = None
+        self.event_dict = self.generate_event_dict()
+        self.looping = True
+        
+    def generate_event_dict():
+        event_dict =  {
+            Keys.event_submit : self.handle_event_submit,
+            Keys.event_end_program : self.event_handling_end_program_break_loop,
+            Keys.event_cancel : self.event_handling_cancel_break_loop,
+            Keys.event_uncategorised : self.event_handling_uncategorised_break_loop,
+            Keys.searchterm_subcategory : lambda : self.updateList(self.values[Keys.searchterm_subcategory], self.subcategoryList, Keys.selection_subcategory),
+            Keys.searchterm_category : lambda : self.updateList(values[Keys.searchterm_category],self.categoryList,Keys.selection_category),
+            Keys.searchterm_onceoff :  lambda : self.updateList(values[Keys.searchterm_onceoff], self.subcategoryList, Keys.selection_onceoff),
+            Keys.flag_new_kw : self.handle_event_flag_new_kw_toggle_visibility,
+            Keys.flag_new_subcat : self.handle_event_flag_new_subcat_toggle_visiblity,
+            Keys.flag_onceoff : self.handle_event_flag_onceoff_toggle_visibility
+        }
+        # adding the quickmatches to the dictionary
+        for eachMatch in self.matches:
+            event_dict[eachMatch] = lambda : self.handle_quickmatch(eachMatch)
+    
+    def handle_event():
+        self.event_dict[self.event]
+    
+    def handle_quickmatch(str: quickMatch):
+        self.data[Keys.data_subcategory] = self.kwMap[quickMatch]
+        print(f"Categorised using {quickMatch} --> {self.data[Keys.data_subcategory]}")
+        self.looping = False
 
+    def handle_event_submit():
+        if values[Keys.flag_onceoff]:
+                self.data[Keys.data_subcategory] = self.values[Keys.selection_onceoff][0].title() #extract and format as title
+        elif values[Keys.flag_new_kw]: # To be explicit, but submit can't be access without keyword
+                self.data[Keys.data_new_kw] = self.values[Keys.new_keyword].upper() # extract the keyword
+                if self.values[Keys.new_subcategory]: # changed to rely on the CB's 
+                    self.data[Keys.data_subcategory] = values[Keys.new_subcategory].title()
+                    self.data[Keys.data_category] = values[Keys.selection_category][0]
+                    self.data[Keys.data_bucket] = values[Keys.selection_bucket][0]
+                    self.data[Keys.data_class] = values[Keys.selection_class][0]
+                else:
+                    self.data[Keys.data_subcategory] = values[Keys.selection_subcategory][0].title() # extract subcategory        
+    
+        print("Finished with the following data:")
+        [print(f"{k}: {v}") for k, v in self.data.items()]
+        self.looping = False   
+
+    def event_handling_end_program_break_loop():
+        self.data[Keys.data_end_flag] = True
+        print('Ending program without categorising the last value')
+        self.looping = False
+
+    def event_handling_cancel_break_loop():
+        print("Categorised as 'Uncategorised'")
+        self.looping = False
+
+    def event_handling_uncategorised_break_loop():
+        print("Categorised as 'Uncategorised'")
+        self.looping = False
+
+    def handle_event_flag_new_kw_toggle_visibility():
+        self.showNewKWFrame = not self.showNewKWFrame
+        self.window[Keys.frame_new_kw].update(visible=self.showNewKWFrame)
+
+    def handle_event_flag_new_subcat_toggle_visibility():
+        self.showNewSubcatFrame = not self.showNewSubcatFrame
+        self.window[Keys.frame_new_subcat].update(visible = self.showNewSubcatFrame)
+    
+    def handle_event_flag_onceoff_toggle_visibility():
+        self.showOnceOffFrame = not self.showOnceOffFrame
+        self.window[Keys.frame_onceoff].update(visible = self.showOnceOffFrame)
 
     def generateKWButtonFrame(self):
         # if there are no matches, return a message in the frame instead of buttons
@@ -67,12 +137,11 @@ class Gui:
 
     # Checkboxes / Flags
     def generateFlags(self):
-        # makes checkboxes: debug, newKW, newSubcat --> used to reveal parts of the window
-        debug = sg.CB("Debug Mode", default = True, key = Keys.flag_debug, enable_events=True)
+        # makes checkboxes: newKW, newSubcat --> used to reveal parts of the window
         onceoff = sg.CB("Once-Off", default = False, key = Keys.flag_onceoff, enable_events=True)
         newKW = sg.CB("New Keyword", default = False, key = Keys.flag_new_kw, enable_events=True)
         newSubcat = sg.CB("New Subcat", default = False, key = Keys.flag_new_subcat, enable_events=True)
-        return [debug, onceoff, newKW, newSubcat]
+        return [onceoff, newKW, newSubcat]
 
     # final layout
     def generateCompleteLayout(self):
@@ -117,7 +186,6 @@ class Gui:
         return testKW in self.desc
 
     def isSelected(self, listToCheck):
-        """Checks if a single selection is made"""
         return len(listToCheck) == 1
 
     def generateWindow(self):
@@ -125,7 +193,6 @@ class Gui:
         return sg.Window("Categorise Me!", self.generateCompleteLayout())
     
     def createDataTemplate(self):
-        """Creates the template for data to be gathered"""
         return {
             Keys.data_subcategory : Keys.event_uncategorised.value,
             Keys.data_new_kw: None,
@@ -148,109 +215,9 @@ class Gui:
         """Uses the gui window to find the subcategory and new keyword/subcategory data"""
                 
         self.window = self.generateWindow()
-        while True:
-            event, values = self.window.Read(timeout = 1000)
-
-            # Cancel
-            if event in (None, Keys.event_cancel, Keys.event_uncategorised): # has to be value for cancel to match sg.Cancel()
-                print("Categorised as 'Uncategorised'")
-                break
-
-            elif event == "End Program":
-                self.data[Keys.data_end_flag] = True
-                print('Ending program without categorising the last value')
-                break
-
-            
-            # showing debug information
-            elif event != Keys.event_timeout.value and values[Keys.flag_debug]: # event_timeout needs to be a string
-                print(f"event: {event} \nvalues: {values}\n")
-
-            # detecting quick match selections
-            if event in self.matches:
-                self.data[Keys.data_subcategory] = self.kwMap[event] # look up the keyword mapping and overwrite Subcategory
-                print(f"Categorised using {event} --> {self.data[Keys.data_subcategory.value]}")
-                break
-
-            # If submit...
-            elif event == Keys.event_submit: #Only available in the case of a new keyword
-                if values[Keys.flag_onceoff]:
-                    self.data[Keys.data_subcategory] = values[Keys.selection_onceoff][0].title() #extract and format as title
-                elif values[Keys.flag_new_kw]: # To be explicit, but submit can't be access without keyword
-                    self.data[Keys.data_new_kw] = values[Keys.new_keyword].upper() # extract the keyword
-                    if values[Keys.new_subcategory]: # changed to rely on the CB's 
-                        self.data[Keys.data_subcategory] = values[Keys.new_subcategory].title()
-                        self.data[Keys.data_category] = values[Keys.selection_category][0]
-                        self.data[Keys.data_bucket] = values[Keys.selection_bucket][0]
-                        self.data[Keys.data_class] = values[Keys.selection_class][0]
-                    else:
-                        self.data[Keys.data_subcategory] = values[Keys.selection_subcategory][0].title() # extract subcategory        
-        
-                print("Finished with the following data:")
-                [print(f"{k}: {v}") for k, v in self.data.items()]
-                break       
-
-           # updating the search lists
-            elif event == Keys.searchterm_subcategory: # if there's a change in the search term
-                self.updateList(values[Keys.searchterm_subcategory], self.subcategoryList, Keys.selection_subcategory) # update subcategories on display
-            
-            elif event == Keys.searchterm_category: # if there's a change in the search term
-                self.updateList(values[Keys.searchterm_category],self.categoryList,Keys.selection_category) # update categories on display
-            
-            elif event == Keys.searchterm_onceoff:
-                self.updateList(values[Keys.searchterm_onceoff], self.subcategoryList, Keys.selection_onceoff)
-                  
-
-            # if there's a change to any of the flag checkboxes, update visibility
-            # this can be refactored to be neater
-            
-            elif event == Keys.flag_new_kw:
-                print(f"showNewKWFrame was {self.showNewKWFrame} and is now {not self.showNewKWFrame}")
-                self.showNewKWFrame = not self.showNewKWFrame
-                self.window[Keys.frame_new_kw].update(visible=self.showNewKWFrame)
-
-            elif event == Keys.flag_new_subcat:
-                print(f"showNewSubcatFrame was {self.showNewSubcatFrame} and is now {not self.showNewSubcatFrame}")
-                self.showNewSubcatFrame = not self.showNewSubcatFrame
-                self.window[Keys.frame_new_subcat].update(visible = self.showNewSubcatFrame)
-
-            elif event == Keys.flag_onceoff:
-                print(f"showNewSubcatFrame was {self.showNewSubcatFrame} and is now {not self.showNewSubcatFrame}")
-                self.showOnceOffFrame = not self.showOnceOffFrame
-                self.window[Keys.frame_onceoff].update(visible = self.showOnceOffFrame)
-
-            # elif event in ("-NEW KW FLAG-", "-NEW SUBCAT FLAG-", "-ONCEOFF FLAG-"):
-            #     toChange = self.flag2FrameMap[event]
-            #     self.toggleFrameVisibility(toChange) # show or hide frames
-            
-            """disable/enable submit based on once-off checkbox"""
-            # if values['-ONCEOFF FLAG-']:
-                # self.window['-NEW KW FLAG-'].update(disabled = True) # if once off, disable NEW KEYWORD
-                # if self.isSelected(values['-ONCEOFF LISTBOX-']):
-                    # self.window['-SUBMIT-'].update(disabled = False)
-            # elif not values['-ONCEOFF FLAG-']:
-            #     self.window['-NEW KW FLAG-'].update(disabled = False)
-
-            """disable/enable submit based on new kw flag"""
-            # if values['-NEW KW FLAG-']:
-            #     # self.window['-NEW SUBCAT FLAG-'].update(disabled=False) # if new kw flag, then allow new subcat flag
-            #     validKWInfo = all([self.validate("kw", values['-NEW KW-'], self.kwList), self.usefulKeyword(values['-NEW KW-'])]) # If the kw is useful and valid           
-            #     if not values['-NEW SUBCAT FLAG-']: # if we're NOT using a new subcategory
-            #         self.data["New Subcategory"] = False # set new subcat explicitly to false
-            #         # if validKWInfo and self.isSelected(values['-SUBCAT LISTBOX-']): # allow submit if valid, useful keyword and a subcategory selection made
-            #         #     self.window['-SUBMIT-'].update(disabled = False)
-            #         # else:
-            #         #     self.window['-SUBMIT-'].update(disabled = True)
-            #     if values['-NEW SUBCAT FLAG-']:
-            #         self.data["New Subcategory"] = True
-            #         # validSubcatInfo = self.validate("subcat", '-NEW SUBCAT-', self.subcategoryList)
-            #         # if validKWInfo and validSubcatInfo and self.isSelected(values['-CAT LISTBOX-']) and self.isSelected(values['-BUCKET-']) and self.isSelected(values['-CLASS-']):
-            #         #     self.window['-SUBMIT-'].update(disabled = False)
-            #         # else:
-            #         #     self.window['-SUBMIT-'].update(disabled = True)
-
-            
-            
+        while self.looping:
+            self.event, self.values = self.window.Read(timeout = 1000)
+            self.handle_event()
 
         self.window.close()
         self.window = None
