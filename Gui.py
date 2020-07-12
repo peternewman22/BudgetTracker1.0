@@ -89,23 +89,23 @@ class Gui:
         print("Categorised as 'Uncategorised'")
         self.looping = False
 
-    def handle_event_uncategorised_break_loop(self):
+    def handle_event_uncategorised_break_loop(self) -> None:
         print("Categorised as 'Uncategorised'")
         self.looping = False
 
-    def handle_event_flag_new_kw_toggle_visibility(self):
+    def handle_event_flag_new_kw_toggle_visibility(self) -> None:
         self.showNewKWFrame = not self.showNewKWFrame
         self.window[Keys.frame_new_kw].update(visible=self.showNewKWFrame)
 
-    def handle_event_flag_new_subcat_toggle_visibility(self):
+    def handle_event_flag_new_subcat_toggle_visibility(self) -> None:
         self.showNewSubcatFrame = not self.showNewSubcatFrame
         self.window[Keys.frame_new_subcat].update(visible = self.showNewSubcatFrame)
     
-    def handle_event_flag_onceoff_toggle_visibility(self):
+    def handle_event_flag_onceoff_toggle_visibility(self) -> None:
         self.showOnceOffFrame = not self.showOnceOffFrame
         self.window[Keys.frame_onceoff].update(visible = self.showOnceOffFrame)
 
-    def generateKWButtonFrame(self):
+    def generateKWButtonFrame(self) -> sg.Frame:
         # if there are no matches, return a message in the frame instead of buttons
         if len(self.matches) == 0:
             noMatchLayout = [[sg.Text("No Quick Matches Found")]]
@@ -118,13 +118,13 @@ class Gui:
 
 
     # Once-off categorisation frame    
-    def generateOnceOffFrame(self):
+    def generateOnceOffFrame(self) -> sg.Frame:
         layout = []
         self.searchOnceOff.addToFrame(layout)
         return [sg.Frame("Once-Off Categorisation", layout = layout, visible=self.showOnceOffFrame, key=Keys.frame_onceoff)]
 
     # New Subcategory Frame
-    def generateNewSubcatFrame(self):
+    def generateNewSubcatFrame(self) -> sg.Frame:
         layout = [[sg.T("New Subcat: "), sg.InputText(key=Keys.new_subcategory)]]
         layout = self.searchCategory.addToFrame(layout)
         layout = self.searchBucket.addToFrame(layout) 
@@ -132,13 +132,13 @@ class Gui:
         return [sg.Frame("New Subcategory", layout = layout, visible=self.showNewSubcatFrame , key=Keys.frame_new_subcat)]
 
     # New Keyword frame
-    def generateNewKWFrame(self):
+    def generateNewKWFrame(self) -> sg.Frame:
         layout = [[sg.T("New Keyword: "), sg.InputText(key=Keys.new_keyword)]]
         layout = self.searchSubcategory.addToFrame(layout)
         return [sg.Frame("New Keyword", layout = layout, visible=self.showNewKWFrame , key=Keys.frame_new_kw)]
 
     # Checkboxes / Flags
-    def generateFlags(self):
+    def generateFlags(self) -> list:
         # makes checkboxes: newKW, newSubcat --> used to reveal parts of the window
         onceoff = sg.CB("Once-Off", default = False, key = Keys.flag_onceoff, enable_events=True)
         newKW = sg.CB("New Keyword", default = False, key = Keys.flag_new_kw, enable_events=True)
@@ -146,7 +146,7 @@ class Gui:
         return [onceoff, newKW, newSubcat]
 
     # final layout
-    def generateCompleteLayout(self):
+    def generateCompleteLayout(self) -> list:
         """The final layout"""
         return [
             [sg.Text(f"Description: {self.desc}")],
@@ -158,23 +158,24 @@ class Gui:
             [sg.Button(Keys.event_uncategorised.value,key=Keys.event_uncategorised),sg.Submit(disabled=False, key=Keys.event_submit, tooltip = self.submitTooltip), sg.Cancel(key=Keys.event_cancel),sg.Button(Keys.event_end_program.value, key=Keys.event_end_program)]
         ]
     
-    def validateNewKeyword(self, newKW):
+    def validateNewKeyword(self, newKW: str) -> bool:
         """Checks to see if a new keyword has already been used"""
         newKW = newKW.upper() # all keywords are upper
         return newKW not in self.kwList
 
-    def toggleFrameVisibility(self, frameKey):
+    def toggleFrameVisibility(self, frameKey: Keys) -> None:
         """Toggles visibility for frames within the window"""
         print(f'Changing {frameKey}. Was {self.flagMap[frameKey]} now {not self.flagMap[frameKey]}')
         self.flagMap[frameKey] = not self.flagMap[frameKey] # toggle flag
         self.window[frameKey].update(visible=self.flagMap[frameKey]) # set visibility to new value of flag
         
-    def updateList(self, searchTerm, searchList, listboxKey):
+    def updateList(self, searchTerm: str, searchList: list, listboxKey: Keys) -> None:
         """Updates listbox based on a filtered list"""
         filteredList = self.filterList(searchTerm, searchList)
         self.window[listboxKey].update(values=filteredList)
 
-    def validate(self,checkType,userInput,referenceList):
+    #TODO: change checkType to an Enum 
+    def validate(self,checkType: str,userInput: str, referenceList: list) -> bool:
         """Adjusts the text accordingly and checks for existence within a reference list"""
         if checkType == "kw":
             term = userInput.strip().upper()
@@ -182,19 +183,20 @@ class Gui:
             term = userInput.strip().title()
         return term not in referenceList and term != ''
 
-    def usefulKeyword(self, kw):
+    def usefulKeyword(self, kw: str) -> bool:
         """Tests to see if the proposed keyword is actually in the description i.e. can it be used to identify the tag"""
         testKW = kw.upper() # all keywords are in upper case
         return testKW in self.desc
 
-    def isSelected(self, listToCheck):
+    #TODO: use strict typing.List[str]
+    def isSelected(self, listToCheck: list) -> bool:
         return len(listToCheck) == 1
 
-    def generateWindow(self):
+    def generateWindow(self) -> sg.Window:
         """Creates a new window"""
         return sg.Window("Categorise Me!", self.generateCompleteLayout())
     
-    def createDataTemplate(self):
+    def createDataTemplate(self) -> dict:
         return {
             Keys.data_subcategory : Keys.event_uncategorised.value,
             Keys.data_new_kw: None,
@@ -205,7 +207,7 @@ class Gui:
             Keys.data_end_flag : False # Triggers the end of the program
             }
     
-    def filterList(self, searchTerm, searchList):
+    def filterList(self, searchTerm: str, searchList: list) -> list:
         """Prepares the search term and filters the list"""
         search = searchTerm.strip().title() # All subcategories are capitalized only
         if search == '':
@@ -213,7 +215,7 @@ class Gui:
         else:
             return list(filter(lambda eachItem: search == eachItem[:len(search)],searchList))
 
-    def getSubcategoryLoop(self):
+    def getSubcategoryLoop(self) -> dict:
         """Uses the gui window to find the subcategory and new keyword/subcategory data"""
                 
         self.window = self.generateWindow()
