@@ -36,70 +36,72 @@ class Gui:
         self.event_dict = self.generate_event_dict()
         self.looping = True
         
-    def generate_event_dict():
+    def generate_event_dict(self) -> dict:
         event_dict =  {
             Keys.event_submit : self.handle_event_submit,
-            Keys.event_end_program : self.event_handling_end_program_break_loop,
-            Keys.event_cancel : self.event_handling_cancel_break_loop,
-            Keys.event_uncategorised : self.event_handling_uncategorised_break_loop,
+            Keys.event_end_program : self.handle_event_end_program_break_loop,
+            Keys.event_cancel : self.handle_event_cancel_break_loop,
+            Keys.event_uncategorised : self.handle_event_uncategorised_break_loop,
             Keys.searchterm_subcategory : lambda : self.updateList(self.values[Keys.searchterm_subcategory], self.subcategoryList, Keys.selection_subcategory),
-            Keys.searchterm_category : lambda : self.updateList(values[Keys.searchterm_category],self.categoryList,Keys.selection_category),
-            Keys.searchterm_onceoff :  lambda : self.updateList(values[Keys.searchterm_onceoff], self.subcategoryList, Keys.selection_onceoff),
+            Keys.searchterm_category : lambda : self.updateList(self.values[Keys.searchterm_category],self.categoryList,Keys.selection_category),
+            Keys.searchterm_onceoff :  lambda : self.updateList(self.values[Keys.searchterm_onceoff], self.subcategoryList, Keys.selection_onceoff),
             Keys.flag_new_kw : self.handle_event_flag_new_kw_toggle_visibility,
-            Keys.flag_new_subcat : self.handle_event_flag_new_subcat_toggle_visiblity,
+            Keys.flag_new_subcat : self.handle_event_flag_new_subcat_toggle_visibility,
             Keys.flag_onceoff : self.handle_event_flag_onceoff_toggle_visibility
         }
         # adding the quickmatches to the dictionary
         for eachMatch in self.matches:
             event_dict[eachMatch] = lambda : self.handle_quickmatch(eachMatch)
+
+        return event_dict
     
-    def handle_event():
+    def handle_event(self) -> None:
         self.event_dict[self.event]
     
-    def handle_quickmatch(str: quickMatch):
+    def handle_quickmatch(self, quickMatch: str) -> None:
         self.data[Keys.data_subcategory] = self.kwMap[quickMatch]
         print(f"Categorised using {quickMatch} --> {self.data[Keys.data_subcategory]}")
         self.looping = False
 
-    def handle_event_submit():
-        if values[Keys.flag_onceoff]:
+    def handle_event_submit(self) -> None:
+        if self.values[Keys.flag_onceoff]:
                 self.data[Keys.data_subcategory] = self.values[Keys.selection_onceoff][0].title() #extract and format as title
-        elif values[Keys.flag_new_kw]: # To be explicit, but submit can't be access without keyword
+        elif self.values[Keys.flag_new_kw]: # To be explicit, but submit can't be access without keyword
                 self.data[Keys.data_new_kw] = self.values[Keys.new_keyword].upper() # extract the keyword
                 if self.values[Keys.new_subcategory]: # changed to rely on the CB's 
-                    self.data[Keys.data_subcategory] = values[Keys.new_subcategory].title()
-                    self.data[Keys.data_category] = values[Keys.selection_category][0]
-                    self.data[Keys.data_bucket] = values[Keys.selection_bucket][0]
-                    self.data[Keys.data_class] = values[Keys.selection_class][0]
+                    self.data[Keys.data_subcategory] = self.values[Keys.new_subcategory].title()
+                    self.data[Keys.data_category] = self.values[Keys.selection_category][0]
+                    self.data[Keys.data_bucket] = self.values[Keys.selection_bucket][0]
+                    self.data[Keys.data_class] = self.values[Keys.selection_class][0]
                 else:
-                    self.data[Keys.data_subcategory] = values[Keys.selection_subcategory][0].title() # extract subcategory        
+                    self.data[Keys.data_subcategory] = self.values[Keys.selection_subcategory][0].title() # extract subcategory        
     
         print("Finished with the following data:")
         [print(f"{k}: {v}") for k, v in self.data.items()]
         self.looping = False   
 
-    def event_handling_end_program_break_loop():
+    def handle_event_end_program_break_loop(self) -> None:
         self.data[Keys.data_end_flag] = True
         print('Ending program without categorising the last value')
         self.looping = False
 
-    def event_handling_cancel_break_loop():
+    def handle_event_cancel_break_loop(self) -> None:
         print("Categorised as 'Uncategorised'")
         self.looping = False
 
-    def event_handling_uncategorised_break_loop():
+    def handle_event_uncategorised_break_loop(self):
         print("Categorised as 'Uncategorised'")
         self.looping = False
 
-    def handle_event_flag_new_kw_toggle_visibility():
+    def handle_event_flag_new_kw_toggle_visibility(self):
         self.showNewKWFrame = not self.showNewKWFrame
         self.window[Keys.frame_new_kw].update(visible=self.showNewKWFrame)
 
-    def handle_event_flag_new_subcat_toggle_visibility():
+    def handle_event_flag_new_subcat_toggle_visibility(self):
         self.showNewSubcatFrame = not self.showNewSubcatFrame
         self.window[Keys.frame_new_subcat].update(visible = self.showNewSubcatFrame)
     
-    def handle_event_flag_onceoff_toggle_visibility():
+    def handle_event_flag_onceoff_toggle_visibility(self):
         self.showOnceOffFrame = not self.showOnceOffFrame
         self.window[Keys.frame_onceoff].update(visible = self.showOnceOffFrame)
 
